@@ -1,11 +1,7 @@
-- name: ansible to install 
+- name: Enable NodeJS 20 module
   ansible.builtin.command: dnf module enable nodejs:20 -y
 
-- name: ansible to instal nodejs 
-  ansible.builtin.package: 
-       name: nodejs
-       state: present  
-
-- name: install dependencies
-  community.general.npm:
-      path: /app       
+- name: Install NodeJS
+  ansible.builtin.package:
+    name: nodejs
+    state: present

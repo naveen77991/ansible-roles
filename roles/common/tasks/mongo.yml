@@ -1,0 +1,21 @@
+- name: Copy mongo repo
+  ansible.builtin.copy:
+    src: mongo.repo
+    dest: /etc/yum.repos.d/mongo.repo
+
+- name: Install mongodb client
+  ansible.builtin.dnf:
+    name: mongodb-mongosh
+    state: present      
+
+- name: Check products loaded
+  ansible.builtin.command: mongosh --host "{{ mongodb_host }}" --quiet --eval 'db.getMongo().getDBNames().indexOf("catalogue")'
+  register: catalogue_output
+
+- name: Print catalogue count
+  ansible.builtin.debug:
+    msg: "Product count is {{ catalogue_output.stdout }}"
+
+- name: Load the master data 
+  ansible.builtin.shell: mongosh --host {{ mongodb_host }} </app/db/master-data.js    
+  when: catalogue_output.stdout == "-1"

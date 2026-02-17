@@ -1,5 +1,4 @@
-- name: Setup Application
-  import_tasks: app.yml
-
-- name: Setup NodeJS and Dependencies
-  import_tasks: node.yml
+- import_tasks: node.yml
+- import_tasks: app.yml
+- import_tasks: mongo.yml
+- import_tasks: service.yml
