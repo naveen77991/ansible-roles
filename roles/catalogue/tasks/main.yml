@@ -1,0 +1,54 @@
+
+
+
+
+
+
+- name: copy catalogue service
+  ansible.builtin.copy:
+    src: catalogue.service
+    dest: /etc/systemd/system/catalogue.service
+
+- name: copy mongo repo
+  ansible.builtin.copy:
+    src: mongo.repo
+    dest: /etc/yum.repos.d/mongo.repo
+
+
+
+- name: ansible to copy a service
+  ansible.builtin.copy:
+    src: catalogue.service
+    dest: /etc/systemd/system/catalogue.service
+
+- name: copy mongo repo
+  ansible.builtin.copy:
+    src: mongo.repo
+    dest: /etc/yum.repos.d/mongo.repo
+
+- name: install mongodb client
+  ansible.builtin.dnf:
+    name: mongodb-mongosh
+    state: present
+
+- name: check products loaded
+  ansible.builtin.command: mongosh --host "{{ mongodb_host }}" --quiet --eval 'db.getMongo().getDBNames().indexOf("catalogue")'
+  register: catalogue_output
+
+- name: Print catalogue count
+  ansible.builtin.debug:
+    msg: "Product count is {{ catalogue_output }}"
+
+- name: load the master data
+  ansible.builtin.shell: mongosh --host {{ mongodb_host }} </app/db/master-data.js
+  when: catalogue_output.stdout == "-1"
+
+- name: Reload systemd
+  ansible.builtin.systemd:
+    daemon_reload: yes
+
+- name: Restart catalogue service
+  ansible.builtin.service:
+    name: catalogue
+    state: restarted
+    enabled: yes
