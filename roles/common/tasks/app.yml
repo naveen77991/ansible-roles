@@ -1,17 +1,17 @@
-- name: create roboshop system user
+- name: Create roboshop system user
   ansible.builtin.user:
     name: roboshop
     system: yes
     home: /app
     shell: /sbin/nologin
-    create_home: yes
+    create_home: yes  
 
-- name: delete app directory
-  ansible.builtin.file:
-    path: /app
-    state: absent
+- name: ansible to delete app directory 
+  ansible.builtin.file: 
+    path: /app 
+    state: absent 
 
-- name: create app directory
+- name: Create /app directory
   ansible.builtin.file:
     path: /app
     state: directory
@@ -19,18 +19,18 @@
     group: roboshop
     mode: '0755'
 
-- name: delete {{ component }} zip file
+- name: delete catalogue zip file
   ansible.builtin.file:
-    path: "/tmp/{{ component }}.zip"
+    path: /tmp/catalogue.zip
     state: absent
 
-- name: download {{ component }}
+- name: download catalogue
   ansible.builtin.get_url:
-    url: "https://roboshop-artifacts.s3.amazonaws.com/{{ component }}-v3.zip"
-    dest: "/tmp/{{ component }}.zip"
+    url: https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip 
+    dest: /tmp/catalogue.zip
 
-- name: unarchive {{ component }}
+- name: unarchive catalogue
   ansible.builtin.unarchive:
-    src: "/tmp/{{ component }}.zip"
+    src: /tmp/catalogue.zip
     dest: /app
     remote_src: yes
