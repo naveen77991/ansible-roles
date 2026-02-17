@@ -14,10 +14,7 @@
     name: common
     tasks_from: node.yml
 
-- name: systemd setup
-  ansible.builtin.import_role:
-    name: common
-    tasks_from: systemd-setup.yaml
+
 
 
 
