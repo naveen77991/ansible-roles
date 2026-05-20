@@ -1,0 +1,15 @@
+---
+- name: Disable Default NodeJS
+  shell: dnf module disable nodejs -y
+
+- name: Enable NodeJS 20
+  shell: dnf module enable nodejs:20 -y
+
+- name: Install NodeJS
+  dnf:
+    name: nodejs
+    state: present
+
+- name: Setup Common
+  include_role:
+    name: common
