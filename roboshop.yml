@@ -1,0 +1,6 @@
+---
+- name: Deploy Component
+  hosts: "{{ component }}"
+  become: yes
+  roles:
+    - "{{ component }}"
