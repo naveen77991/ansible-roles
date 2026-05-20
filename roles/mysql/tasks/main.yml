@@ -1,0 +1,20 @@
+---
+- name: Install MySQL
+  dnf:
+    name: mysql-server
+    state: present
+
+- name: Start and Enable MySQL
+  service:
+    name: mysqld
+    state: started
+    enabled: yes
+
+- name: Check Root Password
+  shell: mysql -u root -pRoboShop@1 -e "select 1"
+  register: mysql_root
+  ignore_errors: yes
+
+- name: Set MySQL Root Password
+  shell: mysql_secure_installation --set-root-pass RoboShop@1
+  when: mysql_root.rc != 0
