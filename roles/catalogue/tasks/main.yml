@@ -1,0 +1,57 @@
+---
+- name: Setup NodeJS and Common
+  include_role:
+    name: nodejs
+
+- name: Download Catalogue Code
+  get_url:
+    url: https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip
+    dest: /tmp/catalogue.zip
+
+- name: Unzip Catalogue Code
+  unarchive:
+    src: /tmp/catalogue.zip
+    dest: /app
+    remote_src: yes
+
+- name: Install Dependencies
+  npm:
+    path: /app
+
+- name: Copy Catalogue Service
+  template:
+    src: catalogue.service.j2
+    dest: /etc/systemd/system/catalogue.service
+
+- name: Reload Daemon
+  systemd:
+    daemon_reload: yes
+
+- name: Start and Enable Catalogue
+  service:
+    name: catalogue
+    state: started
+    enabled: yes
+
+- name: Copy Mongo Repo
+  copy:
+    src: mongo.repo
+    dest: /etc/yum.repos.d/mongo.repo
+
+- name: Install MongoDB Client
+  dnf:
+    name: mongodb-mongosh
+    state: present
+
+- name: Check If Data Loaded
+  shell: mongosh --host {{ MONGODB_HOST }} --quiet --eval 'db.getMongo().getDBNames().indexOf("catalogue")'
+  register: db_index
+
+- name: Load Master Data
+  shell: mongosh --host {{ MONGODB_HOST }} < /app/db/master-data.js
+  when: db_index.stdout | int <= 0
+
+- name: Restart Catalogue
+  service:
+    name: catalogue
+    state: restarted
