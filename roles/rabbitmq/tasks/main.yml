@@ -1,0 +1,29 @@
+---
+- name: Copy RabbitMQ Repo
+  copy:
+    src: rabbitmq.repo
+    dest: /etc/yum.repos.d/rabbitmq.repo
+
+- name: Install RabbitMQ
+  dnf:
+    name: rabbitmq-server
+    state: present
+
+- name: Start and Enable RabbitMQ
+  service:
+    name: rabbitmq-server
+    state: started
+    enabled: yes
+
+- name: Check If User Exists
+  shell: rabbitmqctl list_users | grep roboshop
+  register: rabbit_user
+  ignore_errors: yes
+
+- name: Create RabbitMQ User
+  shell: rabbitmqctl add_user roboshop roboshop123
+  when: rabbit_user.rc != 0
+
+- name: Set Permissions
+  shell: rabbitmqctl set_permissions -p / roboshop ".*" ".*" ".*"
+  when: rabbit_user.rc != 0
