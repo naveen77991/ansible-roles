@@ -1,0 +1,47 @@
+---
+- name: Install Python3
+  dnf:
+    name:
+      - python3
+      - gcc
+      - python3-devel
+    state: present
+
+- name: Setup Common
+  include_role:
+    name: common
+
+- name: Download Payment Code
+  get_url:
+    url: https://roboshop-artifacts.s3.amazonaws.com/payment-v3.zip
+    dest: /tmp/payment.zip
+
+- name: Unzip Payment Code
+  unarchive:
+    src: /tmp/payment.zip
+    dest: /app
+    remote_src: yes
+
+- name: Install Dependencies
+  pip:
+    requirements: /app/requirements.txt
+
+- name: Copy Payment Service
+  template:
+    src: payment.service.j2
+    dest: /etc/systemd/system/payment.service
+
+- name: Reload Daemon
+  systemd:
+    daemon_reload: yes
+
+- name: Start and Enable Payment
+  service:
+    name: payment
+    state: started
+    enabled: yes
+
+- name: Restart Payment
+  service:
+    name: payment
+    state: restarted
