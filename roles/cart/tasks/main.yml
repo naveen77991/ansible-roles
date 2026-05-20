@@ -1,0 +1,39 @@
+---
+- name: Setup NodeJS and Common
+  include_role:
+    name: nodejs
+
+- name: Download Cart Code
+  get_url:
+    url: https://roboshop-artifacts.s3.amazonaws.com/cart-v3.zip
+    dest: /tmp/cart.zip
+
+- name: Unzip Cart Code
+  unarchive:
+    src: /tmp/cart.zip
+    dest: /app
+    remote_src: yes
+
+- name: Install Dependencies
+  npm:
+    path: /app
+
+- name: Copy Cart Service
+  template:
+    src: cart.service.j2
+    dest: /etc/systemd/system/cart.service
+
+- name: Reload Daemon
+  systemd:
+    daemon_reload: yes
+
+- name: Start and Enable Cart
+  service:
+    name: cart
+    state: started
+    enabled: yes
+
+- name: Restart Cart
+  service:
+    name: cart
+    state: restarted
