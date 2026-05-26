@@ -16,5 +16,5 @@
   ignore_errors: yes
 
 - name: Set MySQL Root Password
-  shell: mysql_secure_installation --set-root-pass RoboShop@1
+  shell: mysql_secure_installation --set-root-pass {{ MYSQL_ROOT_PASSWORD }}
   when: mysql_root.rc != 0
